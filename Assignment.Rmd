@@ -5,3 +5,30 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+# Ps5: Rmarkdown, basic plots
+
+## Load and check data
+
+1.
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+```
+
+2.
+```{r, message=FALSE}
+gap <- read_delim("Data/gapminder.csv.bz2")
+gap %>% 
+  dim()
+```
+There is `r nrow(gap)` rows and `r ncol(gap)` columns in the data.
+
+3. 
+
+```{r}
+gap %>% 
+  sample_n(10)
+```
+There are no issues with the data. 
+
+##
+
