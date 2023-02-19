@@ -7,14 +7,14 @@ output: html_document
 
 # Ps5: Rmarkdown, basic plots
 
-## Load and check data
+### Load and check data
 
 1.
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
 ```
 
-2.
+2. 
 ```{r, message=FALSE}
 gap <- read_delim("Data/gapminder.csv.bz2")
 gap %>% 
@@ -22,7 +22,7 @@ gap %>%
 ```
 There is `r nrow(gap)` rows and `r ncol(gap)` columns in the data.
 
-3. 
+3. Print a small sample
 
 ```{r}
 gap %>% 
@@ -30,5 +30,129 @@ gap %>%
 ```
 There are no issues with the data. 
 
-##
+### Descriptive Statistics 
+
+1. 
+
+```{r}
+gap %>% 
+  filter(!is.na(name) | !is.na(iso2) | !is.na(iso3)) %>% 
+  summarize(n1 = n_distinct(name), n2 = n_distinct(iso2), 
+            n3 = n_distinct(iso3))
+```
+2. a)
+```{r}
+gap %>% 
+  group_by(iso2) %>% 
+  filter(!is.na(iso2)) %>% 
+  summarise(n = n_distinct(name)) %>% 
+  arrange(desc(n))
+```
+For each iso-2 code, there are only one name and doesn't correspond to more than one.
+
+b)
+```{r}
+gap %>% 
+  group_by(name) %>% 
+  filter(!is.na(name)) %>% 
+  summarise(n = n_distinct(iso3)) %>% 
+  arrange(desc(n))
+```
+Same as iso-2 code, there are only one name and doesn't correspond to more than one.
+
+3. 
+```{r}
+gap %>% 
+  filter(!is.na(time)) %>% 
+  summarize(min = min(time),max = max(time))
+```
+The min year is 1960 and the max year is 2019.
+
+### CO2 emissions 
+
+1. 
+```{r}
+gap %>% 
+  group_by(time) %>% 
+  summarize( n = sum(is.na(co2)) + sum(is.na(co2_PC)) ) %>% 
+  arrange(desc(n))
+```
+2017-2019 all of these years have equal amount of most missing values for CO2 emissions.
+
+2. 
+```{r}
+gap %>% 
+  filter(name %in% c("United States of America","China",
+                     "India", "France", "Canada")) %>% 
+  filter(!is.na(co2)) %>% 
+  group_by(name) %>% 
+  ggplot(aes(x = time, y = co2, col = name))+
+  geom_line() + ggtitle("CO2 emissions over time")+
+  xlab("Year") + 
+  ylab("CO2 emissions (kt)") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+The total amount of CO2 emissions roughly increases for all countries from 1960 to 1980. Some countries keep their
+CO2 emissions the same to the present time expect China and India. Both's total emissions have increased while China's increased significantly compared to the rest.  
+
+3.
+```{r}
+gap %>% 
+  filter(name %in% c("United States of America","China",
+                     "India", "France", "Canada")) %>% 
+  filter(!is.na(co2_PC)) %>% 
+  group_by(name) %>% 
+  ggplot(aes(x = time, y = co2_PC, col = name))+
+  geom_line() + ggtitle("CO2 per capita emissions over time")+
+  xlab("Year") + 
+  ylab("CO2 emissions (mt per capita)") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+According to the figure, United States had the most CO2 emissions per capita compared to the rest. All countries are decreasing in over time expect China and India, which are increasing. 
+
+4. 
+```{r}
+gap %>% 
+  group_by(region) %>% 
+  filter(time == "2016" & !is.na(region)) %>% 
+  summarize(CO2 = mean(co2_PC, na.rm= TRUE)) %>% 
+  arrange(desc(CO2))
+```
+Since 2017-2019 had most missing values regarding co2 emissions, I used 2016 as the recent year. So in 2016, Europe had most CO2 emission per capita while Africa had the least.
+
+5.
+```{r}
+gap %>% 
+  group_by(region,time) %>% 
+  filter(time %in% c("1960","2016") & !is.na(region)) %>% 
+  summarize(CO2 = mean(co2_PC, na.rm= TRUE)) %>% 
+  ggplot(aes(x = region , y = CO2, fill = factor(time))) +
+  geom_col(stat = "identity", position = "dodge")+
+  xlab("Continent")+
+  ylab("Average CO2 per capita")+
+  ggtitle("CO2 per capita 1960 vs. 2016") +
+  theme(plot.title = element_text(hjust = 0.5))
+  
+```
+
+
+Out of all of the continents, Americas had a decrease in CO2 per capita from 1960 to 2019 while other ones had an increase. Asia had the most increase in CO2 per capita from 1960 to 2019. 
+
+6. 
+```{r}
+gap %>% 
+  group_by(region, name) %>% 
+  filter(time == 2016) %>%
+  filter(!is.na(region) & !is.na(co2_PC) & !is.na(name)) %>% 
+  summarize(n = co2_PC) %>% 
+  filter(rank(desc(n)) <= 3 | rank(n) <= 3) %>% 
+  arrange(desc(n)) %>% 
+  arrange(region)
+```
+
+
 
