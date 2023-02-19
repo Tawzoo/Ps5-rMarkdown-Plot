@@ -194,14 +194,13 @@ The results fit with the figures since it shows that the life expectancy has inc
 
 ```{r}
 gap %>% 
-  filter(!is.na(lifeExpectancy) & !is.na(region)) %>% 
+  filter(time %in% c(1960,2019) & !is.na(lifeExpectancy) & !is.na(region)) %>% 
   group_by(region, time) %>% 
   summarize(avg_LE = mean(lifeExpectancy)) %>% 
-  mutate(growth = avg_LE - lag(avg_LE)) %>% 
+  mutate(prev = lag(avg_LE), growth = avg_LE - lag(avg_LE)) %>% 
   arrange(desc(growth))
 ```
-Out of all continents, **Asia** and **Africa** had the highest growth in life expectancy couple of times. **Africa** had most recent highest growth which could be an effect from foreign aid and advance in  technologies. 
-
+Out of all continents, **Asia** and **Africa** had the highest growth in life expectancy while **Europe** had the least growth.
 6. 
 ```{r}
 gap %>% 
