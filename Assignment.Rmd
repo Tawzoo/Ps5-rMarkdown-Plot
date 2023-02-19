@@ -154,5 +154,8 @@ gap %>%
   arrange(region)
 ```
 
+### GDP per capita
+
+
 
 
